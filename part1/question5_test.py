@@ -1,4 +1,4 @@
-import pets_db as pets_db
+from pets_db import create_db, get_connection, drop_db
 from question5 import sql_create_favorite_foods, sql_alter_tables_with_favorite_food, sql_select_all_vegetarian_pets
 
 FOODS = [
@@ -25,11 +25,11 @@ ANIMALS_FOOD = [
   (2, "randolph"), # termites
 ]
 
-def insert_foods(con):
-  con.executemany("INSERT INTO favorite_foods VALUES(?, ?, ?)", FOODS)
-
 def create_favorite_foods(con):
   con.execute(sql_create_favorite_foods)
+
+def insert_foods(con):
+  con.executemany("INSERT INTO favorite_foods VALUES(?, ?, ?)", FOODS)
 
 def alter_people_animals_food(con):
   con.executescript(sql_alter_tables_with_favorite_food);
@@ -39,25 +39,25 @@ def update_people_animals_food(con):
   con.executemany("UPDATE animals SET favorite_food_id = ? WHERE name = ?", ANIMALS_FOOD)
 
 def test_create_favorite_foods():
-  pets_db.create_db()
+  create_db()
 
-  with pets_db.get_connection() as con:
+  with get_connection() as con:
     create_favorite_foods(con)
     insert_foods(con)
     
 def test_alter_tables_with_favorite_food():
-  pets_db.create_db()
+  create_db()
 
-  with pets_db.get_connection() as con:
+  with get_connection() as con:
     create_favorite_foods(con)
     insert_foods(con)
     alter_people_animals_food(con)
     update_people_animals_food(con)
 
 def test_select_all_vegetarian_pets():
-  pets_db.create_db()
+  create_db()
 
-  with pets_db.get_connection() as con:
+  with get_connection() as con:
     create_favorite_foods(con)
     insert_foods(con)
     alter_people_animals_food(con)
