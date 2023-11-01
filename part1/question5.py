@@ -35,8 +35,7 @@ CREATE TABLE favorite_foods (
 sql_alter_tables_with_favorite_food = """
 ALTER TABLE ANIMALS
 ADD COLUMN favorite_food_id INTEGER;
-"""
-"""
+
 ALTER TABLE PEOPLE
 ADD COLUMN favorite_food_id INTEGER;
 """
