@@ -19,19 +19,12 @@ import pets_db
 # is related.
 
 # Part 4.A:
-
 sql_pets_owned_by_nobody = """
 
-SELECT
-  ANIMALS.name AS pet_name,
-  ANIMALS.species AS species,
-  ANIMALS.age AS age
-FROM
-  ANIMALS
-LEFT JOIN
-  PEOPLE_ANIMALS ON ANIMALS.id = PEOPLE_ANIMALS.animal_id
-WHERE
-  PEOPLE_ANIMALS.animal_id IS NULL;
+SELECT animals.name, animals.species, animals.age
+FROM animals
+LEFT JOIN people_animals ON animals.animal_id = people_animals.pet_id
+WHERE people_animals.pet_id IS NULL;
 
 """
 
@@ -68,3 +61,4 @@ AND animals.animal_id NOT IN (
   );
 
 """
+
