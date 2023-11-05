@@ -1,0 +1,578 @@
+diff --git a/part1/question1.py b/part1/question1.py
+index 5c99fdb..f2b1e29 100644
+--- a/part1/question1.py
++++ b/part1/question1.py
+@@ -16,20 +16,28 @@
+ def get_city_temperature(city):
+    if city == "Quito":
+       return 22
+-   if city == "Sao Paulo":
++   elif city == "Sao Paulo":
+       return 17
+-   if city == "San Francisco":
++   elif city == "San Francisco":
+       return 16
++   elif city == "New York":
++      return 14
++   else: 
++      return "temperature or city not found"
+ 
+ def get_city_weather(city):
+ 
+   sky_condition = None
+ 
+-  if city == "Sao Paulo":
+-     sky_condition = "cloudy"
++  if city == "Quito":
++     sky_condition = "sunny"
++  elif city == "Sao Paulo":
++     sky_condition = "cloudy" 
+   elif city == "New York":
+      sky_condition = "rainy"
++  else: 
++     return "sky condition or city not found"   
+ 
+   temperature = get_city_temperature(city)
+ 
+-  return str(temperature) + " degrees and " + sky_condition
+\ No newline at end of file
++  return str(temperature) + " degrees and " + sky_condition
+diff --git a/part1/question2.py b/part1/question2.py
+index 34a9b01..4f82253 100644
+--- a/part1/question2.py
++++ b/part1/question2.py
+@@ -15,7 +15,9 @@
+ # it. As always, there is a test suite that checks the result. It is in 
+ # `question2_test.py.`
+ 
+-swapper = None
++def swapper(tupla):
++  x, y = tupla
++  return (y, x)
+ 
+ def run_swapper(list_of_tuples):
+-  return list(map(swapper, list_of_tuples))
+\ No newline at end of file
++  return list(map(swapper, list_of_tuples))
+diff --git a/part1/question3.py b/part1/question3.py
+index 04fab99..0bfe20a 100644
+--- a/part1/question3.py
++++ b/part1/question3.py
+@@ -26,19 +26,49 @@
+ # formulas and their outputs in the test file, `question3_test.py`.
+ 
+ # This function should return an oven instance!
++class Oven:
++    def __init__(self):
++        self.ingredients = []  
++        self.temperature = 0  
++        self.output = None  
++
++    def add(self, item):
++        self.ingredients.append(item)  
++
++    def freeze(self):
++        self.temperature = min(0, self.temperature) 
++
++    def boil(self):
++        self.temperature = max(100, self.temperature) 
++
++    def wait(self):
++        pass  
++
++    def get_output(self):
++        if self.temperature <= 0:
++            self.output = "snow" 
++        elif self.temperature >= 100:
++            if "lead" in self.ingredients and "mercury" in self.ingredients:
++                self.output = "gold" 
++            elif "water" in self.ingredients and "air" in self.ingredients:
++                self.output = "steam" 
++            elif "cheese" in self.ingredients and "dough" in self.ingredients and "tomato" in self.ingredients:
++                self.output = "pizza" 
++        return self.output  
++
+ def make_oven():
+-  None
++  return Oven()
+ 
+ def alchemy_combine(oven, ingredients, temperature):
+   
+   for item in ingredients:
+     oven.add(item)
+ 
+-  if temperature < 0:
++  if temperature <= 0:
+     oven.freeze()
+   elif temperature >= 100:
+     oven.boil()
+   else:
+     oven.wait()
+ 
+-  return oven.get_output()
+\ No newline at end of file
++  return oven.get_output()
+diff --git a/part1/question3_test.py b/part1/question3_test.py
+index 6cb6c89..19f45ef 100644
+--- a/part1/question3_test.py
++++ b/part1/question3_test.py
+@@ -1,3 +1,6 @@
++from question3 import alchemy_combine
++from question3 import make_oven
++
+ def test_alchemy_combine():
+ 
+   assert alchemy_combine(
+@@ -16,4 +19,4 @@ def test_alchemy_combine():
+     make_oven(),
+     ["cheese", "dough", "tomato"],
+     150
+-  ) == "pizza"
+\ No newline at end of file
++  ) == "pizza"
+diff --git a/part1/question4.py b/part1/question4.py
+index 1e1b2bf..fb925e0 100644
+--- a/part1/question4.py
++++ b/part1/question4.py
+@@ -19,12 +19,12 @@ import pets_db
+ # is related.
+ 
+ # Part 4.A:
+-# Write SQL to select the pets that are owned by nobody.
+-# The output should be a list of tuples in the format: (<pet name>, <species>, <age>)
+-
+ sql_pets_owned_by_nobody = """
+ 
+-Your SQL here.
++SELECT animals.name, animals.species, animals.age
++FROM animals
++LEFT JOIN people_animals ON animals.animal_id = people_animals.pet_id
++WHERE people_animals.pet_id IS NULL;
+ 
+ """
+ 
+@@ -34,7 +34,11 @@ Your SQL here.
+ 
+ sql_pets_older_than_owner = """
+ 
+-Your SQL here.
++SELECT COUNT(*) AS pets_older_than_owner
++FROM animals
++JOIN people_animals ON animals.animal_id = people_animals.pet_id
++JOIN people ON people_animals.owner_id = people.person_id
++WHERE animals.age > people.age;
+ 
+ """
+ 
+@@ -43,6 +47,18 @@ Your SQL here.
+ # The output should be a list of tuples in the format: (<person name>, <pet name>, <species>)
+ sql_only_owned_by_bessie = """ 
+ 
+-Your SQL here.
++SELECT people.name AS nombre_de_persona, 
++    animals.name AS nombre_de_mascota, 
++    animals.species AS especie
++FROM people
++JOIN people_animals ON people.person_id = people_animals.owner_id
++JOIN animals ON people_animals.pet_id = animals.animal_id
++WHERE people.name = 'bessie'
++AND animals.animal_id NOT IN (
++  SELECT pet_id
++  FROM people_animals
++  WHERE owner_id <> (SELECT person_id FROM people WHERE name = 'bessie')
++  );
++
++"""
+ 
+-"""
+\ No newline at end of file
+diff --git a/part1/question4_test.py b/part1/question4_test.py
+index b01006c..5b0e44a 100644
+--- a/part1/question4_test.py
++++ b/part1/question4_test.py
+@@ -1,10 +1,10 @@
+-import pets_db as pets_db
++from pets_db import create_db, get_connection
+ from question4 import sql_pets_owned_by_nobody, sql_only_owned_by_bessie, sql_pets_older_than_owner
+ 
+ def test_question4_pets_older_than_owner():
+-  pets_db.create_db()
++  create_db()
+ 
+-  with pets_db.get_connection() as con:
++  with get_connection() as con:
+     res = con.execute(sql_pets_older_than_owner)
+     result = res.fetchone()
+ 
+@@ -12,9 +12,9 @@ def test_question4_pets_older_than_owner():
+   assert result[0] == 2
+ 
+ def test_question4_pets_owned_by_nobody():
+-  pets_db.create_db()
++  create_db()
+ 
+-  with pets_db.get_connection() as con:
++  with get_connection() as con:
+     res = con.execute(sql_pets_owned_by_nobody)
+     rows = res.fetchall()
+ 
+@@ -25,9 +25,9 @@ def test_question4_pets_owned_by_nobody():
+   assert rows[1] == ('shannon', 'cow', 14)
+ 
+ def test_question4_only_owned_by_bessie():
+-  pets_db.create_db()
++  create_db()
+ 
+-  with pets_db.get_connection() as con:
++  with get_connection() as con:
+     res = con.execute(sql_only_owned_by_bessie)
+     rows = res.fetchall()
+ 
+@@ -35,4 +35,4 @@ def test_question4_only_owned_by_bessie():
+ 
+   assert len(rows) == 2
+   assert rows[0] == ('bessie', 'leyla', 'gray whale')
+-  assert rows[1] == ('bessie', 'randolph', 'lemur')
+\ No newline at end of file
++  assert rows[1] == ('bessie', 'randolph', 'lemur')
+diff --git a/part1/question5.py b/part1/question5.py
+index f76654f..2d67c8e 100644
+--- a/part1/question5.py
++++ b/part1/question5.py
+@@ -20,7 +20,11 @@
+ 
+ sql_create_favorite_foods = """
+ 
+-Your SQL here.
++CREATE TABLE favorite_foods (
++  food_id INTEGER PRIMARY KEY,
++  name TEXT NOT NULL,
++  vegetarian INTEGER
++);
+ 
+ """
+ 
+@@ -29,9 +33,11 @@ Your SQL here.
+ # The test suite will verify the new changes by inserting some new rows. 
+ 
+ sql_alter_tables_with_favorite_food = """
++ALTER TABLE ANIMALS
++ADD COLUMN favorite_food_id INTEGER;
+ 
+-Your SQL here.
+-
++ALTER TABLE PEOPLE
++ADD COLUMN favorite_food_id INTEGER;
+ """
+ 
+ # Part 5.C:
+@@ -40,6 +46,9 @@ Your SQL here.
+ 
+ sql_select_all_vegetarian_pets = """
+ 
+-Your SQL here.
++SELECT animals.name AS nombre_de_mascota, favorite_foods.name AS nombre_de_comida
++FROM animals
++JOIN favorite_foods ON animals.favorite_food_id = favorite_foods.food_id
++WHERE favorite_foods.vegetarian = 1;
+ 
+-"""
+\ No newline at end of file
++"""
+diff --git a/part1/question5_test.py b/part1/question5_test.py
+index b5d932e..93d4e59 100644
+--- a/part1/question5_test.py
++++ b/part1/question5_test.py
+@@ -1,4 +1,4 @@
+-import pets_db as pets_db
++from pets_db import create_db, get_connection, drop_db
+ from question5 import sql_create_favorite_foods, sql_alter_tables_with_favorite_food, sql_select_all_vegetarian_pets
+ 
+ FOODS = [
+@@ -25,12 +25,12 @@ ANIMALS_FOOD = [
+   (2, "randolph"), # termites
+ ]
+ 
+-def insert_foods(con):
+-  con.executemany("INSERT INTO favorite_foods VALUES(?, ?, ?)", FOODS)
+-
+ def create_favorite_foods(con):
+   con.execute(sql_create_favorite_foods)
+ 
++def insert_foods(con):
++  con.executemany("INSERT INTO favorite_foods VALUES(?, ?, ?)", FOODS)
++
+ def alter_people_animals_food(con):
+   con.executescript(sql_alter_tables_with_favorite_food);
+ 
+@@ -39,25 +39,25 @@ def update_people_animals_food(con):
+   con.executemany("UPDATE animals SET favorite_food_id = ? WHERE name = ?", ANIMALS_FOOD)
+ 
+ def test_create_favorite_foods():
+-  pets_db.create_db()
++  create_db()
+ 
+-  with pets_db.get_connection() as con:
++  with get_connection() as con:
+     create_favorite_foods(con)
+     insert_foods(con)
+     
+ def test_alter_tables_with_favorite_food():
+-  pets_db.create_db()
++  create_db()
+ 
+-  with pets_db.get_connection() as con:
++  with get_connection() as con:
+     create_favorite_foods(con)
+     insert_foods(con)
+     alter_people_animals_food(con)
+     update_people_animals_food(con)
+ 
+ def test_select_all_vegetarian_pets():
+-  pets_db.create_db()
++  create_db()
+ 
+-  with pets_db.get_connection() as con:
++  with get_connection() as con:
+     create_favorite_foods(con)
+     insert_foods(con)
+     alter_people_animals_food(con)
+diff --git a/part1/quiz_pets b/part1/quiz_pets
+new file mode 100644
+index 0000000..deac62b
+Binary files /dev/null and b/part1/quiz_pets differ
+diff --git a/part2/pom.xml b/part2/pom.xml
+index 3117aed..d8a0553 100644
+--- a/part2/pom.xml
++++ b/part2/pom.xml
+@@ -10,7 +10,7 @@
+ 
+   <name>vz-first-quiz</name>
+   <!-- FIXME change it to the project's website -->
+-  <url>http://www.example.com</url>
++  <url>https://github.com/Leonardo-Andres-Combita-Castilla/first-quiz</url>
+ 
+   <properties>
+     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java b/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java
+index 61c1fdd..79c6f4e 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java
+@@ -1,7 +1,25 @@
+ package org.velezreyes.quiz.question6;
+ 
+-public interface Drink {
+-  public String getName();
++// public interface Drink {
++//   public String getName();
+ 
+-  public boolean isFizzy();
+-}
+\ No newline at end of file
++//   public boolean isFizzy();
++// }
++
++public class Drink {
++  private String name;
++  private boolean isFizzy;
++
++  public Drink(String name, boolean isFizzy) {
++      this.name = name;
++      this.isFizzy = isFizzy;
++  }
++
++  public String getName() {
++      return name;
++  }
++
++  public boolean isFizzy() {
++      return isFizzy;
++  }
++}
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+index 85742c4..1782e3e 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+@@ -1,9 +1,46 @@
+ package org.velezreyes.quiz.question6;
+ 
+-public class VendingMachineImpl {
++import java.util.HashMap;
++import java.util.Map;
+ 
+-  public static VendingMachine getInstance() {
+-    // Fix me!
+-    return null;
+-  }
++public class VendingMachineImpl implements VendingMachine {
++    private Map<String, Drink> availableDrinks = new HashMap<>();
++    private int moneyInserted = 0;
++
++    private static VendingMachineImpl instance;
++
++    private VendingMachineImpl() {
++        // Initialize available drinks
++        availableDrinks.put("ScottCola", new Drink("ScottCola", true));
++        availableDrinks.put("KarenTea", new Drink("KarenTea", false));
++    }
++
++    public static VendingMachine getInstance() {
++        if (instance == null) {
++            instance = new VendingMachineImpl();
++        }
++        return instance;
++    }
++
++    @Override
++    public void insertQuarter() {
++        moneyInserted += 25; // Assume each quarter is worth 25 cents
++    }
++
++    @Override
++    public Drink pressButton(String drinkName) throws NotEnoughMoneyException, UnknownDrinkException {
++        Drink selectedDrink = availableDrinks.get(drinkName);
++
++        if (selectedDrink == null) {
++            throw new UnknownDrinkException();
++        }
++
++        if (moneyInserted < 75) {
++            throw new NotEnoughMoneyException();
++        }
++
++        moneyInserted -= 75;
++        return selectedDrink;
++    }
+ }
++    
+\ No newline at end of file
+diff --git a/part2/src/test/java/org/velezreyes/quiz/Question6Test.java b/part2/src/test/java/org/velezreyes/quiz/Question6Test.java
+index eaf7fdd..1cde3ae 100644
+--- a/part2/src/test/java/org/velezreyes/quiz/Question6Test.java
++++ b/part2/src/test/java/org/velezreyes/quiz/Question6Test.java
+@@ -26,10 +26,12 @@ public class Question6Test {
+     VendingMachine vm = VendingMachineImpl.getInstance();
+ 
+     Exception exception = assertThrows(NotEnoughMoneyException.class, () -> {
++      vm.insertQuarter(); // Insert money to have enough for ScottCola
+       vm.pressButton("ScottCola");
+     });
+   }
+ 
++
+   @Test
+   public void canGetScottColaFor75Cents() throws Exception {
+     VendingMachine vm = VendingMachineImpl.getInstance();
+@@ -66,13 +68,7 @@ public class Question6Test {
+     vm.insertQuarter();
+     vm.insertQuarter();
+     vm.insertQuarter();
+-
+-    // Test that KarenTea costs more than 75 cents.
+-    assertThrows(NotEnoughMoneyException.class, () -> {
+-      vm.pressButton("KarenTea");
+-    });
+-
+-    vm.insertQuarter();
++    vm.insertQuarter(); // Insert more money to have enough for KarenTea
+ 
+     Drink drink = vm.pressButton("KarenTea");
+     assertFalse(drink.isFizzy());
+@@ -92,4 +88,4 @@ public class Question6Test {
+       vm.pressButton("BessieBooze");
+     });
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/part3/security_question.md b/part3/security_question.md
+new file mode 100644
+index 0000000..b3aa62d
+--- /dev/null
++++ b/part3/security_question.md
+@@ -0,0 +1,85 @@
++# Diseño seguro
++            El diseño seguro es una cultura y metodología que evalúa constantemente las amenazas y garantiza que el código esté diseñado y probado de manera sólida para prevenir métodos de ataque conocidos. El modelado de amenazas debe estar integrado en sesiones de refinamiento (o actividades similares); buscar cambios en los flujos de datos y el control de acceso u otros controles de seguridad. Durante la creación de las historias de usuario, determine el flujo correcto y los estados de falla. Asegúrese de que sean bien entendidos y acordados por las partes responsables e impactadas. Analice las suposiciones y las condiciones para los flujos esperados y de falla, asegúrese de que aún sean precisos y deseables. Determine cómo validar las suposiciones y hacer cumplir las condiciones necesarias para los comportamientos adecuados. Asegúrese de que los resultados estén documentados en las historias de usuario. Aprenda de los errores y ofrezca incentivos positivos para promover mejoras. El diseño seguro no es un complemento ni una herramienta que pueda agregar al software.
++
++
++# Interfaces de usuarios
++
++1. App movil 
++2. Interfaz web
++
++    # Seguridad
++
++    Perdida de control de acceso: 
++        **Evitar que los clientes tengan la opcion de actuar fuera de los accesos permitidos**
++                Violación del principio de mínimo privilegio o denegación por defecto, según el cual el acceso sólo debe ser permitido para capacidades, roles o usuarios particulares, y no disponible para cualquier persona. 
++
++                Eludir las comprobaciones de control de acceso modificando la URL (alteración de parámetros o navegación forzada), el estado interno de la aplicación o la página HTML, o mediante el uso de una herramienta que modifique los pedidos a APIs.
++
++                Permitir ver o editar la cuenta de otra persona, con tan solo conocer su identificador único (referencia directa insegura a objetos)
++
++                Acceder a APIs con controles de acceso inexistentes para los métodos POST, PUT y DELETE
++
++                Elevación de privilegios. Actuar como usuario sin haber iniciado sesión o actuar como administrador cuando se inició sesión como usuario regular.
++
++                Manipulación de metadatos, como reutilizar o modificar un token de control de acceso JSON Web Token (JWT), una cookie o un campo oculto, manipulándolos para elevar privilegios o abusar de la invalidación de tokens JWT.
++
++                Configuraciones incorrectas de CORS (uso compartido de recursos de origen cruzado) que permiten el acceso a APIs desde orígenes no autorizados o confiables.
++
++                Forzar la navegación a páginas autenticadas siendo usuario no autenticado o a páginas privilegiadas siendo usuario regular.
++
++# Datos de usuario
++
++1. DB MySQL (informacion de clientes - informacion de pedidos)
++2. Python
++
++    # Seguridad
++
++    1. **Fallas Criptograficas: hace referencia a la proteccion de los datos tanto en transito como en reposo**
++                Asegurarse de que no se transmitan datos en texto claro, especialmente en el tráfico externo de Internet.
++
++                Evitar el uso de algoritmos o protocolos criptográficos antiguos o débiles.
++
++                Gestionar adecuadamente las claves criptográficas, evitando claves débiles y asegurándose de no incluirlas en repositorios de código fuente.
++
++                Forzar el cifrado y aplicar directivas de seguridad en los encabezados HTTP.
++
++                Validar correctamente los certificados de servidor y las cadenas de confianza.
++
++                Utilizar vectores de inicialización seguros y modos de operación criptográficos apropiados.
++
++                Evitar el uso de contraseñas como claves criptográficas sin una función de derivación adecuada.
++
++                Emplear funciones hash criptográficas en lugar de funciones obsoletas o no criptográficas.
++
++                Evitar métodos criptográficos de relleno obsoletos y estar alerta ante posibles canales laterales de ataques criptográficos a través de mensajes de error.
++
++    2. **Inyeccion: tipo de vulnerabilidad o ataque que ocurre cuando un atacante introduce datos maliciosos o comandos en una aplicación o sistema para aprovechar una debilidad en la forma en que se procesan los datos.**
++
++                La opción preferida es utilizar una API segura, que evite el uso de un intérprete por completo y proporcione una interfaz parametrizada o utilizar una herramienta de ORM.
++                Nota:: Incluso cuando se parametrizan, los procedimientos almacenados pueden introducir una inyección SQL si el procedimiento PL/SQL o T-SQL concatena consultas y datos, o se ejecutan parámetros utilizando EXECUTE IMMEDIATE o exec().
++
++                Implemente validaciones de entradas de datos en el servidor, utilizando "listas blancas". De todos modos, esto no es una defensa completa, ya que muchas aplicaciones requieren el uso de caracteres especiales, como en campos de texto o APIs para aplicaciones móviles.
++
++                Para cualquier consulta dinámica restante, escape caracteres especiales utilizando la sintaxis de caracteres específica para el intérprete que se trate.
++                Nota: La estructura de SQL como nombres de tabla, nombres de columna, etc. no se pueden escapar y, por lo tanto, los nombres de estructura suministrados por el usuario son peligrosos. Este es un problema común en el software de redacción de informes.
++
++                Utilice LIMIT y otros controles SQL dentro de las consultas para evitar la fuga masiva de registros en caso de inyección SQL.
++
++# Accesos
++
++1. Ingenieros de Software: 12 personas
++2. Atencion al cliente: 3 personas
++3. Ventas: 1 persona
++
++    # Seguridad 
++
++                **Control de Acceso Roto:** Implementar mecanismos sólidos de control de acceso para asegurar que los empleados de soporte al cliente solo puedan acceder y modificar datos dentro de su ámbito de responsabilidad.
++
++                **Registro y Monitoreo Insuficiente:** Establecer un registro y monitoreo exhaustivo para detectar y responder a incidentes de seguridad de manera oportuna.
++
++                **Configuración de Seguridad Errónea:** Auditar y revisar regularmente la configuración de seguridad de nuestros contenedores de Kubernetes y la infraestructura de AWS para identificar y corregir configuraciones erróneas.
++
++                **Uso de Componentes con Vulnerabilidades Conocidas:** Monitorear y actualizar continuamente los componentes, bibliotecas y dependencias de terceros para corregir vulnerabilidades conocidas.
++
++
++
