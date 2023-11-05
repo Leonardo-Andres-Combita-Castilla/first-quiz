@@ -26,18 +26,12 @@ public class Question6Test {
     VendingMachine vm = VendingMachineImpl.getInstance();
 
     Exception exception = assertThrows(NotEnoughMoneyException.class, () -> {
-<<<<<<< HEAD
       vm.insertQuarter(); // Insert money to have enough for ScottCola
-=======
->>>>>>> 73c36a3e6a21476ba4c26c839909756f448f44bb
       vm.pressButton("ScottCola");
     });
   }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 73c36a3e6a21476ba4c26c839909756f448f44bb
   @Test
   public void canGetScottColaFor75Cents() throws Exception {
     VendingMachine vm = VendingMachineImpl.getInstance();
@@ -74,17 +68,7 @@ public class Question6Test {
     vm.insertQuarter();
     vm.insertQuarter();
     vm.insertQuarter();
-<<<<<<< HEAD
     vm.insertQuarter(); // Insert more money to have enough for KarenTea
-=======
-
-    // Test that KarenTea costs more than 75 cents.
-    assertThrows(NotEnoughMoneyException.class, () -> {
-      vm.pressButton("KarenTea");
-    });
-
-    vm.insertQuarter();
->>>>>>> 73c36a3e6a21476ba4c26c839909756f448f44bb
 
     Drink drink = vm.pressButton("KarenTea");
     assertFalse(drink.isFizzy());
