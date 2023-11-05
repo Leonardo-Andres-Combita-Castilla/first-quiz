@@ -50,4 +50,4 @@ public class VendingMachineImpl implements VendingMachine {
         moneyInserted -= 75;
         return selectedDrink;
     }
-}
+    
